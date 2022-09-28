@@ -14,6 +14,7 @@ mvn clean test
 ```
 
 ### Check Logs to see the reproduced behavior (As you can see the connection gets dropped after 1 minute (15:02:10) Connected - (15:03:10) - Error :
+```
 Running com.publicrelay.example.reddit_testcase.SocialGistConnection_TestCase
 2022-09-28 14:59:32,941 [INFO] Attempting connecting to the url: https://publicrelay.socialgist.com/stream/redditpremium_dev/subscription/main/part/1/data.json?keepalivestream=true
 2022-09-28 15:02:10,334 [INFO] RedditReaderService connected!
@@ -24,3 +25,4 @@ java.io.EOFException: Unexpected end of ZLIB input stream
     at java.util.zip.GZIPInputStream.read(GZIPInputStream.java:117) ~[?:?]
     at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:270) ~[?:?]
     at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:313) ~[?:?]
+```
