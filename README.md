@@ -10,7 +10,7 @@ Update: reddit.stream.user and reddit.stream.password configurations
 
 ### Running Instructions
 ```console
-mvn clean test
+./mvnw clean test
 ```
 
 ### Check Logs to see the reproduced behavior (As you can see the connection gets dropped after 1 minute (15:02:10) Connected - (15:03:10) - Error :
