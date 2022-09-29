@@ -44,6 +44,8 @@ public class SocialGistConnection {
     @Value(value = "${reddit.stream.url}")
     private String redditStreamUrl;
 
+    private final Boolean gzip = true;
+
     /**
      * logger.
      */
@@ -104,16 +106,38 @@ public class SocialGistConnection {
 
             try (BufferedReader reader = createBufferedReader(inputStream)) {
 
-                final String line = reader.readLine();
-                // Kafka allows sending multiple messages in one batch. Thus
-                // we'll use kafkaBatchCounter to count the number of sent messages
-                // and flush the stream after a batch of N number of messages.
+                String line = reader.readLine();
+                while (line != null) {
 
-                log.info("Reading -> {}...", line.substring(0, 20));
+                    if (line != null && line.length() > 20) {
+                        log.info("Reading -> [{}...]", line.substring(0, 20));
+                    } else {
+                        log.info("Reading -> [{}]", line);
+                    }
+
+                    line = reader.readLine();
+
+                }
+
             }
 
         }
 
+    }
+
+
+    /**
+     * @param inputStream
+     * @return
+     * @throws IOException
+     */
+    private BufferedReader createBufferedReader(InputStream inputStream) throws IOException {
+
+        if (gzip) {
+            return createGZBufferedReader(inputStream);
+        } else {
+            return createSimpleBufferedReader(inputStream);
+        }
     }
 
     /**
@@ -123,8 +147,12 @@ public class SocialGistConnection {
      * @return
      * @throws IOException
      */
-    public BufferedReader createBufferedReader(final InputStream inputStream) throws IOException {
+    public BufferedReader createGZBufferedReader(final InputStream inputStream) throws IOException {
         return new BufferedReader(new InputStreamReader(new GZIPInputStream(inputStream)));
+    }
+
+    public BufferedReader createSimpleBufferedReader(final InputStream inputStream) throws IOException {
+        return new BufferedReader(new InputStreamReader(inputStream));
     }
 
     /**
@@ -142,7 +170,11 @@ public class SocialGistConnection {
         connection.setReadTimeout(FIVE_MINUTES);
         connection.setConnectTimeout(CONNECT_TIMEOUT_10_SECONDS);
         connection.setRequestProperty(AUTHORIZATION_PROPERTY, BASIC_PROPERTY_VALUE + authToken);
-        connection.setRequestProperty(ACCEPT_ENCODING_PROPERTY, GZIP_PROPERTY_VALUE);
+
+        if (gzip) {
+            log.info("Using GZIP Encoding to optimize the payload");
+            connection.setRequestProperty(ACCEPT_ENCODING_PROPERTY, GZIP_PROPERTY_VALUE);
+        }
 
         return connection;
     }
